@@ -122,6 +122,74 @@ fn non_conventional_commit_with_custom_major_increment_regex_increments_major_ve
 }
 
 #[test]
+fn commit_with_custom_minor_increment_regex_increments_patch_version_when_major_is_zero() {
+    let commits = ["minor: some changes"];
+    let version = Version::new(0, 2, 3);
+    assert_eq!(
+        VersionUpdater::new()
+            .with_custom_minor_increment_regex("^minor")
+            .unwrap()
+            .increment(&version, commits),
+        Version::new(0, 2, 4)
+    );
+}
+
+#[test]
+fn commit_with_custom_minor_increment_regex_increments_minor_version_when_major_is_zero() {
+    let commits = ["minor: some changes"];
+    let version = Version::new(0, 2, 3);
+    assert_eq!(
+        VersionUpdater::new()
+            .with_custom_minor_increment_regex("^minor")
+            .unwrap()
+            .with_features_always_increment_minor(true)
+            .increment(&version, commits),
+        Version::new(0, 3, 0)
+    );
+}
+
+#[test]
+fn commit_with_custom_major_increment_regex_increments_minor_version_when_major_is_zero() {
+    let commits = ["major: some changes"];
+    let version = Version::new(0, 2, 3);
+    assert_eq!(
+        VersionUpdater::new()
+            .with_custom_major_increment_regex("^major")
+            .unwrap()
+            .increment(&version, commits),
+        Version::new(0, 3, 0)
+    );
+}
+
+#[test]
+fn commit_with_custom_major_increment_regex_increments_major_version_when_major_is_zero() {
+    let commits = ["major: some changes"];
+    let version = Version::new(0, 2, 3);
+    assert_eq!(
+        VersionUpdater::new()
+            .with_custom_major_increment_regex("^major")
+            .unwrap()
+            .with_breaking_always_increment_major(true)
+            .increment(&version, commits),
+        Version::new(1, 0, 0)
+    );
+}
+
+#[test]
+fn commit_with_custom_major_increment_regex_increments_patch_version_when_major_and_minor_are_zero()
+{
+    let commits = ["major: some changes"];
+    let version = Version::new(0, 0, 3);
+    assert_eq!(
+        VersionUpdater::new()
+            .with_custom_major_increment_regex("^major")
+            .unwrap()
+            .increment(&version, commits),
+        Version::new(0, 0, 4)
+    );
+}
+
+#[test]
 fn conventional_commit_with_matching_description_does_not_trigger_custom_regex() {
     // The word "minor" appears in the description, but not in the type
     // For conventional commits, only the type should be checked
