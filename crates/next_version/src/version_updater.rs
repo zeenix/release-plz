@@ -141,6 +141,11 @@ impl VersionUpdater {
     /// - For non-conventional commits, this will check the entire commit message against the given pattern.
     ///   If you want to match only the beginning of the commit message, use `^` at the start of your regex.
     ///
+    /// Commits matching the pattern are treated as breaking changes, so they follow the same
+    /// rules as conventional breaking-change commits: on `0.x` versions with a nonzero minor
+    /// version they increment the minor version instead, and on `0.0.x` versions the patch
+    /// version, unless [`Self::with_breaking_always_increment_major`] is set.
+    ///
     /// Even if this field is set, major increments are still
     /// triggered by conventional breaking-change commits, subject to
     /// [`Self::with_breaking_always_increment_major`].
@@ -213,6 +218,10 @@ impl VersionUpdater {
     /// - For non-conventional commits, this will check the entire commit message against the given pattern.
     ///   If you want to match only the beginning of the commit message, use `^` at the start of your regex.
     ///
+    /// Commits matching the pattern are treated as features, so they follow the same rules as
+    /// conventional `feat` commits: on `0.x` versions they increment the patch version instead,
+    /// unless [`Self::with_features_always_increment_minor`] is set.
+    ///
     /// Even if this field is set, minor increments are still
     /// triggered by conventional `feat` commits, subject to
     /// [`Self::with_features_always_increment_minor`], and by breaking-change commits on `0.x`
@@ -231,16 +240,26 @@ impl VersionUpdater {
     /// use next_version::VersionUpdater;
     ///
     /// let commits = ["bbb: make coffee"];
-    /// let version = Version::new(0, 2, 3);
+    /// let version = Version::new(1, 2, 3);
     /// assert_eq!(
     ///     VersionUpdater::new()
     ///         .with_custom_minor_increment_regex("^abc|^bbb")
     ///         .expect("invalid regex")
     ///         .increment(&version, &commits),
-    ///     Version::new(0, 3, 0)
+    ///     Version::new(1, 3, 0)
     /// );
     /// assert_eq!(
     ///     VersionUpdater::new()
+    ///         .increment(&version, &commits),
+    ///     Version::new(1, 2, 4)
+    /// );
+    ///
+    /// // On `0.x` versions, matching commits bump the patch version like `feat` commits do.
+    /// let version = Version::new(0, 2, 3);
+    /// assert_eq!(
+    ///     VersionUpdater::new()
+    ///         .with_custom_minor_increment_regex("^abc|^bbb")
+    ///         .expect("invalid regex")
     ///         .increment(&version, &commits),
     ///     Version::new(0, 2, 4)
     /// );

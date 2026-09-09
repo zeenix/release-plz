@@ -141,22 +141,30 @@ impl VersionIncrement {
             }
         }
 
-        let is_there_a_feature = || {
-            conventional_commits
-                .iter()
-                .any(|commit| commit.type_() == git_conventional::Type::FEAT)
-        };
-
+        // A custom major match is a breaking change and a custom minor match is a feature, so
+        // both follow the same version rules as their conventional counterparts. In particular,
+        // on `0.x` versions they are downgraded like `feat!` and `feat` commits are.
         let is_there_a_breaking_change =
-            conventional_commits.iter().any(|commit| commit.breaking());
-
-        let is_major_bump = || {
-            (is_there_a_breaking_change
+            conventional_commits.iter().any(|commit| commit.breaking())
                 || is_there_a_custom_match(
                     updater.custom_major_increment_regex.as_ref(),
                     &conventional_commits,
                     &non_conventional_messages,
-                ))
+                );
+
+        let is_there_a_feature = || {
+            conventional_commits
+                .iter()
+                .any(|commit| commit.type_() == git_conventional::Type::FEAT)
+                || is_there_a_custom_match(
+                    updater.custom_minor_increment_regex.as_ref(),
+                    &conventional_commits,
+                    &non_conventional_messages,
+                )
+        };
+
+        let is_major_bump = || {
+            is_there_a_breaking_change
                 && (current.major != 0 || updater.breaking_always_increment_major)
         };
 
@@ -167,13 +175,7 @@ impl VersionIncrement {
             };
             let is_breaking_bump =
                 || current.major == 0 && current.minor != 0 && is_there_a_breaking_change;
-            is_feat_bump()
-                || is_breaking_bump()
-                || is_there_a_custom_match(
-                    updater.custom_minor_increment_regex.as_ref(),
-                    &conventional_commits,
-                    &non_conventional_messages,
-                )
+            is_feat_bump() || is_breaking_bump()
         };
 
         if is_major_bump() {

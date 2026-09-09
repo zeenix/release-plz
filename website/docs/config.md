@@ -226,6 +226,10 @@ This field can be overridden in the [`[package]`](#the-package-section) section.
 Same as the [`custom_minor_increment_regex`](#the-custom_minor_increment_regex-field), but for major
 version increments.
 
+Matching commits are treated as breaking changes, so they follow the same rules as conventional
+breaking-change commits: in `0.x` releases with a nonzero minor version they bump the minor version
+instead, and in `0.0.x` releases the patch version.
+
 #### The `custom_minor_increment_regex` field
 
 A custom regex pattern to match commit types that should trigger a minor version increment.
@@ -246,6 +250,10 @@ custom_minor_increment_regex = "^minor|^enhancement|^🎉"
 
 With this configuration, commits like `minor: add feature`, `enhancement: new capability`,
 or `🎉: exciting change` will trigger a minor version bump instead of a patch bump.
+
+Matching commits are treated as features, so they follow the same rules as conventional `feat`
+commits: in `0.x` releases they bump the patch version instead, unless
+[`features_always_increment_minor`](#the-features_always_increment_minor-field) is `true`.
 
 This field can be overridden in the [`[package]`](#the-package-section) section.
 
