@@ -794,6 +794,10 @@ async fn release_plz_detects_cargo_lock_updates_from_registry() {
     context.run_cargo_check();
     context.push_all_changes("add registry dep");
 
+    // Lockfile changes release a package only if enabled. Commit the configuration before
+    // publishing, so that it isn't a change of the package.
+    context.write_release_plz_toml("[workspace]\nrelease_on_lockfile_update = true\n");
+
     // Publish the main package to the local registry.
     context.run_cargo_publish(&context.gitea.repo);
 

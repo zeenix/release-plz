@@ -1658,6 +1658,7 @@ async fn git_only_does_not_release_unrelated_binaries_for_workspace_lock_changes
 [workspace]
 git_only = true
 publish = false
+release_on_lockfile_update = true
 "#,
     );
     context.run_release().success();
@@ -1749,6 +1750,7 @@ async fn git_only_does_not_release_binary_for_library_dev_dependency_update() {
 git_only = true
 publish = false
 semver_check = false
+release_on_lockfile_update = true
 "#,
     );
     for name in ["support", "app"] {
