@@ -53,7 +53,9 @@ start with `fix:`, `feat:`, or `deps:` (there are some exceptions based on the l
 Release-plz, instead, generates a release PR for every commit affecting one of your packages,
 regardless of the commit message.
 Release-plz also generates a release PR if you change the dependencies of your packages
-(either in the `Cargo.toml` or in the `Cargo.lock` files).
+in the `Cargo.toml` file (dev-dependencies are ignored).
+If you enable [`release_on_lockfile_update`](./config.md#the-release_on_lockfile_update-field),
+`Cargo.lock` changes trigger a release PR for packages with a binary target, too.
 
 ### No multiple programming languages support 👎
 

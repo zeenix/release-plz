@@ -67,6 +67,7 @@
         "release": null,
         "release_always": null,
         "release_commits": null,
+        "release_on_lockfile_update": null,
         "repo_url": null,
         "semver_check": null
       }
@@ -466,6 +467,14 @@
             "null"
           ]
         },
+        "release_on_lockfile_update": {
+          "title": "Release On Lockfile Update",
+          "description": "If `true`, release a package with a binary target when its locked dependencies in\n`Cargo.lock` changed since its last release, even if the package itself didn't change.\nDefaults to `false`.",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
         "semver_check": {
           "title": "Semver Check",
           "description": "Controls when to run cargo-semver-checks.\nIf unspecified, run cargo-semver-checks if the package is a library.",
@@ -816,6 +825,14 @@
           "description": "Prepare release only if at least one commit respects this regex.",
           "type": [
             "string",
+            "null"
+          ]
+        },
+        "release_on_lockfile_update": {
+          "title": "Release On Lockfile Update",
+          "description": "If `true`, release a package with a binary target when its locked dependencies in\n`Cargo.lock` changed since its last release, even if the package itself didn't change.\nDefaults to `false`.",
+          "type": [
+            "boolean",
             "null"
           ]
         },

@@ -810,7 +810,14 @@ impl Updater<'_> {
                 NO_COMMIT_ID.to_string(),
                 "chore: update Cargo.toml dependencies".to_string(),
             ));
-        } else if contains_executable(package) && are_lock_dependencies_updated()? {
+        } else if self
+            .req
+            .get_package_config(&package.name)
+            .generic
+            .release_on_lockfile_update
+            && contains_executable(package)
+            && are_lock_dependencies_updated()?
+        {
             diff.commits.push(Commit::new(
                 NO_COMMIT_ID.to_string(),
                 "chore: update Cargo.lock dependencies".to_string(),

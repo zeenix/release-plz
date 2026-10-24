@@ -101,6 +101,8 @@ the following sections:
   - [`release_always`](#the-release_always-field) - Release always or when you merge the release PR
     only.
   - [`release_commits`](#the-release_commits-field) - Customize which commits trigger a release.
+  - [`release_on_lockfile_update`](#the-release_on_lockfile_update-field)
+    — Release binaries when `Cargo.lock` changes.
   - [`max_analyze_commits`](#the-max_analyze_commits-field) - Limit commit analysis for unpublished
     packages.
   - [`repo_url`](#the-repo_url-field) — Repository URL.
@@ -135,6 +137,8 @@ the following sections:
   - [`publish_all_features`](#the-publish_all_features-field-package-section)
     — Pass `--all-features` to `cargo publish`.
   - [`release`](#the-release-field-package-section) - Enable the processing of this package.
+  - [`release_on_lockfile_update`](#the-release_on_lockfile_update-field-package-section)
+    — Release binaries when `Cargo.lock` changes.
   - [`semver_check`](#the-semver_check-field-package-section) — Run [cargo-semver-checks].
   - [`version_group`](#the-version_group-field) — Group of packages with the same version.
 - [`[changelog]`](#the-changelog-section) — Changelog configuration.
@@ -742,6 +746,31 @@ The filtered commits are still included in the changelog.
 To exclude certain commits from the changelog, use the [commit_parsers](#the-commit_parsers-field) field.
 :::
 
+#### The `release_on_lockfile_update` field
+
+- If `true`, release-plz releases a package that has a binary target when the `Cargo.lock`
+  entries reachable from the package changed since its last release.
+  The changelog of the package gets an "update Cargo.lock dependencies" entry.
+- If `false`, a `Cargo.lock` change alone doesn't release a package. *(Default)*.
+
+Only the entries that the binary can build count:
+
+- Dev-dependencies of the package are ignored.
+- Optional dependencies of workspace members are ignored, unless a feature enables them.
+  All the features of the released package itself count. With `resolver = "1"`, all the
+  features of workspace members count, because Cargo also enables the features that
+  dev-dependencies request.
+- Optional dependencies of crates from a registry or a git repository always count.
+
+Example:
+
+```toml
+[workspace]
+release_on_lockfile_update = true
+```
+
+This field can be overridden in the [`[package]`](#the-package-section) section.
+
 #### The `max_analyze_commits` field
 
 Maximum number of commits to analyze when the package hasn't been published yet (i.e. there is no
@@ -914,6 +943,11 @@ Overrides the [`workspace.publish_all_features`](#the-publish_all_features-field
 #### The `release` field (`package` section)
 
 Overrides the [`workspace.release`](#the-release-field) field.
+
+#### The `release_on_lockfile_update` field (`package` section)
+
+Overrides the
+[`workspace.release_on_lockfile_update`](#the-release_on_lockfile_update-field) field.
 
 #### The `semver_check` field (`package` section)
 

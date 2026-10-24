@@ -15,6 +15,10 @@ pub struct UpdateConfig {
     pub changelog_update: bool,
     /// High-level toggle to process this package or ignore it.
     pub release: bool,
+    /// If `true`, release a package with a binary target when its locked dependencies in
+    /// `Cargo.lock` changed since its last release, even if the package itself didn't change.
+    /// Default: `false`.
+    pub release_on_lockfile_update: bool,
     /// Whether to publish this package to a registry.
     /// Default: `true`.
     pub publish: bool,
@@ -77,6 +81,7 @@ impl Default for UpdateConfig {
             semver_check: true,
             changelog_update: true,
             release: true,
+            release_on_lockfile_update: false,
             publish: true,
             features_always_increment_minor: false,
             git_only: None,
@@ -102,6 +107,13 @@ impl UpdateConfig {
     ) -> Self {
         Self {
             features_always_increment_minor,
+            ..self
+        }
+    }
+
+    pub fn with_release_on_lockfile_update(self, release_on_lockfile_update: bool) -> Self {
+        Self {
+            release_on_lockfile_update,
             ..self
         }
     }

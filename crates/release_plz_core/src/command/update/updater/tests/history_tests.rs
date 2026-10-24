@@ -85,6 +85,11 @@ impl History {
     }
 
     fn diff(&self, published_at: Option<&str>) -> Diff {
+        self.published_diff(published_at, &self.request())
+    }
+
+    /// The diff against the registry package, published at the `published_at` commit if known.
+    fn published_diff(&self, published_at: Option<&str>, request: &UpdateRequest) -> Diff {
         let metadata =
             cargo_utils::get_manifest_metadata(&self.registry.directory().join(CARGO_TOML))
                 .unwrap();
@@ -94,7 +99,7 @@ impl History {
                 package.clone(),
                 published_at.map(str::to_owned),
             )),
-            &self.request(),
+            request,
         )
         .unwrap()
     }
@@ -384,7 +389,15 @@ fn workspace_dependency_updates_are_detected_without_package_commits() {
                 .unwrap()
                 .is_empty()
         );
-        let diff = history.diff(None);
+        let mut request = history.request();
+        if update_lockfile {
+            // A lockfile change alone releases a package only if the user opts in.
+            assert!(history.diff(None).commits.is_empty());
+            request = request.with_default_package_config(
+                UpdateConfig::default().with_release_on_lockfile_update(true),
+            );
+        }
+        let diff = history.published_diff(None, &request);
         assert_eq!(diff.commits.len(), 1);
         assert_eq!(diff.commits[0].message, expected);
         assert_eq!(diff.commits[0].id, NO_COMMIT_ID);

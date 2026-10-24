@@ -467,6 +467,11 @@ pub struct PackageConfig {
     /// # Release
     /// Used to toggle off the update/release process for a workspace or package.
     pub release: Option<bool>,
+    /// # Release On Lockfile Update
+    /// If `true`, release a package with a binary target when its locked dependencies in
+    /// `Cargo.lock` changed since its last release, even if the package itself didn't change.
+    /// Defaults to `false`.
+    pub release_on_lockfile_update: Option<bool>,
     /// # Custom Minor Increment Regex
     /// Custom regex to match commit types that should trigger a minor version increment.
     /// Useful when using non-conventional commit prefixes.
@@ -483,6 +488,7 @@ impl From<PackageConfig> for release_plz_core::UpdateConfig {
             semver_check: config.semver_check != Some(false),
             changelog_update: config.changelog_update != Some(false),
             release: config.release != Some(false),
+            release_on_lockfile_update: config.release_on_lockfile_update == Some(true),
             publish: config.publish != Some(false),
             tag_name_template: config.git_tag_name,
             features_always_increment_minor: config.features_always_increment_minor == Some(true),
@@ -532,6 +538,9 @@ impl PackageConfig {
             git_tag_enable: self.git_tag_enable.or(default.git_tag_enable),
             git_tag_name: self.git_tag_name.or(default.git_tag_name),
             release: self.release.or(default.release),
+            release_on_lockfile_update: self
+                .release_on_lockfile_update
+                .or(default.release_on_lockfile_update),
             custom_minor_increment_regex: self
                 .custom_minor_increment_regex
                 .or(default.custom_minor_increment_regex),
