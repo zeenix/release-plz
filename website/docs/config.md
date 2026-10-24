@@ -753,6 +753,15 @@ To exclude certain commits from the changelog, use the [commit_parsers](#the-com
   The changelog of the package gets an "update Cargo.lock dependencies" entry.
 - If `false`, a `Cargo.lock` change alone doesn't release a package. *(Default)*.
 
+Only the entries that the binary can build count:
+
+- Dev-dependencies of the package are ignored.
+- Optional dependencies of workspace members are ignored, unless a feature enables them.
+  All the features of the released package itself count. With `resolver = "1"`, all the
+  features of workspace members count, because Cargo also enables the features that
+  dev-dependencies request.
+- Optional dependencies of crates from a registry or a git repository always count.
+
 Example:
 
 ```toml
